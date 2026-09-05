@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: psre-api
+  namespace: psre
+
+  labels:
+    app: psre-api
+    app.kubernetes.io/part-of: production-sre-platform
+
+spec:
+  type: ClusterIP
+
+  selector:
+    app: psre-api
+
+  ports:
+    - name: http
+      port: 8000
+      targetPort: http
+      protocol: TCP
