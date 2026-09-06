@@ -1,0 +1,70 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+
+metadata:
+  name: psre-api-rules
+  namespace: monitoring
+
+  labels:
+    release: kube-prometheus-stack
+    app.kubernetes.io/name: psre-api
+    app.kubernetes.io/part-of: production-sre-platform
+
+spec:
+  groups:
+    - name: psre-api.rules
+
+      rules:
+
+        - alert: PSREHighErrorRate
+          expr: |
+            (
+              sum(rate(http_request_errors_total[5m]))
+              /
+              sum(rate(http_requests_total[5m]))
+            ) > 0.05
+
+          for: 2m
+
+          labels:
+            severity: critical
+
+          annotations:
+            summary: "PSRE API 错误率过高"
+            description: "PSRE API 最近 5 分钟错误率超过 5%，并持续超过 2 分钟。"
+
+        - alert: PSREHighLatency
+          expr: |
+            histogram_quantile(
+              0.95,
+              sum(
+                rate(http_request_duration_seconds_bucket[5m])
+              ) by (le)
+            ) > 0.3
+
+          for: 5m
+
+          labels:
+            severity: warning
+
+          annotations:
+            summary: "PSRE API P95 延迟过高"
+            description: "PSRE API P95 延迟超过 300ms，并持续超过 5 分钟。"
+
+        - alert: PSREPodRestarting
+          expr: |
+            increase(
+              kube_pod_container_status_restarts_total{
+                namespace="psre",
+                pod=~"psre-api-.*"
+              }[10m]
+            ) > 3
+
+          for: 2m
+
+          labels:
+            severity: warning
+
+          annotations:
+            summary: "PSRE API Pod 重启次数过多"
+            description: "PSRE API Pod 在最近 10 分钟内重启次数超过 3 次。"
