@@ -25,6 +25,11 @@ REQUEST_LATENCY = Histogram(
     ["method", "path"],
 )
 
+REQUEST_ERRORS = Counter(
+    "http_request_errors_total",
+    "Total number of HTTP errors",
+    ["method", "path", "status"],
+)
 app = FastAPI(
     title="Production SRE Platform API",
     version=APP_VERSION,
@@ -50,8 +55,22 @@ async def metrics_middleware(request, call_next):
         path=request.url.path,
     ).observe(duration)
 
+    if response.status_code >= 500:
+        REQUEST_ERRORS.labels(
+            method=request.method,
+            path=request.url.path,
+            status=str(response.status_code),
+        ).inc()
     return response
 
+
+@app.get("/api/v1/error")
+async def error():
+    return Response(
+        content='{"status":"error"}',
+        media_type="application/json",
+        status_code=500,
+    )
 
 @app.get("/")
 async def root():

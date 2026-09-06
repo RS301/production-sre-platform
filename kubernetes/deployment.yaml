@@ -33,6 +33,8 @@ spec:
         app.kubernetes.io/part-of: production-sre-platform
 
     spec:
+      imagePullSecrets:
+        - name: ghcr-secret
       terminationGracePeriodSeconds: 30
 
       securityContext:
@@ -44,7 +46,7 @@ spec:
       containers:
         - name: psre-api
 
-          image: ghcr.io/rs301/psre-api:0.1.0
+          image: ghcr.io/rs301/psre-api:0.2.0
 
           imagePullPolicy: IfNotPresent
 
@@ -112,3 +114,4 @@ spec:
       volumes:
         - name: tmp
           emptyDir: {}
+
