@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: psre
+
+  labels:
+    app.kubernetes.io/part-of: production-sre-platform
+    environment: homelab
