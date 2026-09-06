@@ -1,5 +1,6 @@
 apiVersion: v1
 kind: Service
+
 metadata:
   name: psre-api
   namespace: psre
@@ -7,6 +8,11 @@ metadata:
   labels:
     app: psre-api
     app.kubernetes.io/part-of: production-sre-platform
+
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/path: "/metrics"
+    prometheus.io/port: "8000"
 
 spec:
   type: ClusterIP

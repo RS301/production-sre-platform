@@ -1,0 +1,25 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+
+metadata:
+  name: psre-api
+  namespace: monitoring
+
+  labels:
+    app.kubernetes.io/name: psre-api
+    app.kubernetes.io/part-of: production-sre-platform
+
+spec:
+  namespaceSelector:
+    matchNames:
+      - psre
+
+  selector:
+    matchLabels:
+      app: psre-api
+
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: 15s
+      scrapeTimeout: 10s
